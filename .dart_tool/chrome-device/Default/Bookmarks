@@ -1,0 +1,240 @@
+{
+   "checksum": "3b9deac53679857673aeaa5ea4595a6a",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13369598921553005",
+            "date_last_used": "0",
+            "guid": "ba66c01f-b563-4143-8125-10b7dd1a881c",
+            "id": "9",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Season 04 - 172.16.50.12 > DHAKA-FLIX-12 > TV-WEB-Series > TV Series ♥ A — L > Legends of Tomorrow (TV Series 2016– ) 720p > Season 04",
+            "type": "url",
+            "url": "http://172.16.50.12/DHAKA-FLIX-12/TV-WEB-Series/TV%20Series%20%E2%99%A5%20%20A%20%20%E2%80%94%20%20L/Legends%20of%20Tomorrow%20%28TV%20Series%202016%E2%80%93%20%29%20720p/Season%2004/"
+         }, {
+            "date_added": "13381908319321867",
+            "date_last_used": "0",
+            "guid": "6d6de640-a44b-416e-b2b0-53cab6c3c09f",
+            "id": "10",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "React App",
+            "type": "url",
+            "url": "http://localhost:3000/login"
+         }, {
+            "children": [  ],
+            "date_added": "13382617505686612",
+            "date_last_used": "0",
+            "date_modified": "13382617505686612",
+            "guid": "7843807d-568f-4969-84e9-cdfac5b081f2",
+            "id": "11",
+            "name": "",
+            "type": "folder"
+         }, {
+            "children": [  ],
+            "date_added": "13382617549457081",
+            "date_last_used": "0",
+            "date_modified": "13382617549457081",
+            "guid": "8b3792f5-ce7b-4999-bc17-1261527ecc35",
+            "id": "12",
+            "name": "Mistral AI",
+            "type": "folder"
+         }, {
+            "date_added": "13382617573448916",
+            "date_last_used": "0",
+            "guid": "4c62848a-3a5c-4499-b70d-b655ee75752a",
+            "id": "13",
+            "name": "Mistral AI API | Mistral AI Large Language Models",
+            "type": "url",
+            "url": "https://docs.mistral.ai/api/"
+         }, {
+            "date_added": "13382617609500097",
+            "date_last_used": "0",
+            "guid": "485e3e2e-48a8-488d-95c5-7dc7be2fb095",
+            "id": "14",
+            "name": "MercyHacks - Generate Cursor AI Crack Key | Free AI Key Generator",
+            "type": "url",
+            "url": "https://mercyhacks.com/hacks/cursorai.html"
+         }, {
+            "date_added": "13382643511294779",
+            "date_last_used": "0",
+            "guid": "8b78baf3-33a0-40ef-a312-32d8077e8352",
+            "id": "15",
+            "name": "browser-use/web-ui: Run AI Agent in your browser.",
+            "type": "url",
+            "url": "https://github.com/browser-use/web-ui"
+         }, {
+            "date_added": "13383082713348254",
+            "date_last_used": "0",
+            "guid": "534ea9b0-ce75-427e-bc03-8609cbf26c92",
+            "id": "16",
+            "name": "Auth | Built-in user management",
+            "type": "url",
+            "url": "https://supabase.com/auth"
+         }, {
+            "date_added": "13383082797876281",
+            "date_last_used": "0",
+            "guid": "75766c3b-5f15-4508-9c7b-d366dadb22ea",
+            "id": "17",
+            "name": "AI SDK by Vercel",
+            "type": "url",
+            "url": "https://sdk.vercel.ai/docs/introduction"
+         }, {
+            "children": [  ],
+            "date_added": "13383831168087531",
+            "date_last_used": "0",
+            "date_modified": "13383831168087531",
+            "guid": "f2773c8d-e6e1-4e64-aa5e-e97cfe2f1e04",
+            "id": "18",
+            "name": "machine learning",
+            "type": "folder"
+         }, {
+            "date_added": "13383831195196261",
+            "date_last_used": "0",
+            "guid": "46d6c36d-bec9-41c8-85b6-839991c01b83",
+            "id": "19",
+            "name": "Welcome to LightGBM’s documentation! — LightGBM 4.5.0.99 documentation",
+            "type": "url",
+            "url": "https://lightgbm.readthedocs.io/en/latest/index.html"
+         }, {
+            "date_added": "13384504670941462",
+            "date_last_used": "0",
+            "guid": "594be833-84fa-402d-b4c2-3e43e36ca7e3",
+            "id": "20",
+            "name": "Editor | Mermaid Chart",
+            "type": "url",
+            "url": "https://www.mermaidchart.com/app/projects/0ded2044-5cd5-4971-b385-79fd9b31d4cf/diagrams/3eee29ec-09a9-49cc-a1a5-07a1076d52c8/version/v0.1/edit"
+         }, {
+            "date_added": "13385810546097301",
+            "date_last_used": "0",
+            "guid": "7614ef68-e0ee-4efe-8a51-8ccfe8044a0d",
+            "id": "21",
+            "name": "cPanel Login",
+            "type": "url",
+            "url": "https://62-68-73-5.cprapid.com:2083/cpsess1869832583/frontend/jupiter/filemanager/index.html"
+         }, {
+            "date_added": "13385810566619267",
+            "date_last_used": "0",
+            "guid": "93cb2a07-bbe2-4b56-8807-57d97f4d31c8",
+            "id": "22",
+            "name": "WHM Login",
+            "type": "url",
+            "url": "https://62-68-73-5.cprapid.com:2087/cpsess9928005244/scripts/editpkg2?pkg=default"
+         }, {
+            "date_added": "13389820145504458",
+            "date_last_used": "0",
+            "guid": "a5daedbb-dfe2-4e43-bf99-346612aa6297",
+            "id": "23",
+            "name": "Fish Audio: The Best & Free Generative AI Text To Speech & Voice Cloning",
+            "type": "url",
+            "url": "https://fish.audio/text-to-speech/?modelId=802e3bc2b27e49c2995d23ef70e6ac89"
+         }, {
+            "date_added": "13389820162354817",
+            "date_last_used": "0",
+            "guid": "193a0b95-8a71-4bf4-80a3-4117887cb84e",
+            "id": "24",
+            "name": "AI Energy Impact | Qwen",
+            "type": "url",
+            "url": "https://chat.qwen.ai/c/f95d95d4-f035-4f28-8c62-12cf641ca35b"
+         }, {
+            "date_added": "13389939200114808",
+            "date_last_used": "13392307668956829",
+            "guid": "4204c7ea-eb33-42a7-bb2e-598192dbe8aa",
+            "id": "25",
+            "name": "invideo AI - Turn ideas into videos - AI video creator",
+            "type": "url",
+            "url": "https://ai.invideo.io/workspace/9b10deca-5b7c-4429-9a3c-664f04dc0f1a/v30-copilot/076f79cb-2a9c-4820-94d0-3845764e4ac0"
+         }, {
+            "date_added": "13391074131962732",
+            "date_last_used": "13392307024165321",
+            "guid": "2a8aefb4-1e01-4755-a402-4ecbdd2eecc8",
+            "id": "26",
+            "name": "Eraser",
+            "type": "url",
+            "url": "https://app.eraser.io/workspace/ssjVQSzi5QI81SZPcmNa"
+         }, {
+            "date_added": "13391705475088354",
+            "date_last_used": "13393148836017733",
+            "guid": "803fcba8-dd4e-4993-8e1e-035cf1a87d41",
+            "id": "27",
+            "name": "Notice Board duranta ",
+            "type": "url",
+            "url": "https://duranta.app/notices"
+         }, {
+            "date_added": "13392313783316930",
+            "date_last_used": "0",
+            "guid": "bff1201a-e8a6-430b-b411-02e9e327f03d",
+            "id": "28",
+            "name": "Google AI Studio",
+            "type": "url",
+            "url": "https://aistudio.google.com/u/1/generate-video?pli=1"
+         }, {
+            "date_added": "13413555566531226",
+            "date_last_used": "0",
+            "guid": "18571b89-fadf-4253-9ab9-daaac2f46cea",
+            "id": "34",
+            "name": "McAfee Security",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html"
+         }, {
+            "date_added": "13413555296254260",
+            "date_last_used": "0",
+            "guid": "52e08ab5-bf4e-4a5c-aec6-054cd1dc84e8",
+            "id": "31",
+            "name": "McAfee Security",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html"
+         }, {
+            "date_added": "13413553245743853",
+            "date_last_used": "0",
+            "guid": "b8b3a11e-db29-489d-98a7-4ed7e690455f",
+            "id": "8",
+            "name": "McAfee Security",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html"
+         } ],
+         "date_added": "13413549459089161",
+         "date_last_used": "0",
+         "date_modified": "13413555570537357",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13413549582586816",
+            "date_last_used": "0",
+            "guid": "1627f529-cc76-4ed9-97e4-a26b03180fe8",
+            "id": "5",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "SCUBE Solar Monitoring",
+            "type": "url",
+            "url": "http://localhost:58788/#/dashboard1"
+         } ],
+         "date_added": "13413549459089161",
+         "date_last_used": "0",
+         "date_modified": "13413549582586816",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13413549459089161",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}
