@@ -53,7 +53,34 @@
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 
-# Git script files
-*.bat
-*.sh
-*.ps1
+# Git script files (keep existing ones)
+# *.bat
+# *.sh
+# *.ps1
+
+# Backend - Node.js
+backend/node_modules/
+backend/.env
+backend/*.log
+backend/npm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+backend/coverage/
+backend/dist/
+backend/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+nul
