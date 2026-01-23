@@ -287,9 +287,9 @@ for date_str, count in commits_data:
         )
         
         if result.returncode == 0:
-            print(f"[{commit_time}] ✓ Commit {i+1}/{count}: {commit_msg}")
+            print(f"[{commit_time}] OK Commit {i+1}/{count}: {commit_msg}")
         else:
-            print(f"[{commit_time}] ✗ Failed: {commit_msg}")
+            print(f"[{commit_time}] FAIL: {commit_msg}")
             print(f"Error: {result.stderr}")
         
         msg_index += 1
@@ -314,7 +314,7 @@ if response == 'y':
     if result.returncode == 0:
         print()
         print("=" * 60)
-        print("✓ Successfully pushed to GitHub!")
+        print("Successfully pushed to GitHub!")
         print("=" * 60)
         print()
         print("Repository: https://github.com/fahadhasan-x/Solar-PV-Monitoring-System")
@@ -325,7 +325,7 @@ if response == 'y':
         print(f"\nTotal: {total_commits} commits")
     else:
         print()
-        print("✗ Push failed!")
+        print("Push failed!")
         print(f"Error: {result.stderr}")
         print()
         print("You can manually push later with:")
