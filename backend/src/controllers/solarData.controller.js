@@ -1,4 +1,6 @@
 const SolarData = require('../models/SolarData.model');
+const { Op, fn, col, literal } = require('sequelize');
+const { sequelize } = require('../config/database');
 
 // @desc    Get latest solar data
 // @route   GET /api/solar/latest/:deviceId
@@ -7,9 +9,10 @@ const getLatestData = async (req, res) => {
   try {
     const { deviceId } = req.params;
 
-    const data = await SolarData.findOne({ deviceId })
-      .sort({ timestamp: -1 })
-      .limit(1);
+    const data = await SolarData.findOne({
+      where: { deviceId },
+      order: [['timestamp', 'DESC']]
+    });
 
     if (!data) {
       return res.status(404).json({
@@ -20,7 +23,7 @@ const getLatestData = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data
+      data: data.toNestedJSON()
     });
   } catch (error) {
     res.status(500).json({
@@ -38,23 +41,25 @@ const getDataHistory = async (req, res) => {
     const { deviceId } = req.params;
     const { startDate, endDate, limit = 100 } = req.query;
 
-    let query = { deviceId };
+    let where = { deviceId };
 
     // Add date range if provided
     if (startDate || endDate) {
-      query.timestamp = {};
-      if (startDate) query.timestamp.$gte = new Date(startDate);
-      if (endDate) query.timestamp.$lte = new Date(endDate);
+      where.timestamp = {};
+      if (startDate) where.timestamp[Op.gte] = new Date(startDate);
+      if (endDate) where.timestamp[Op.lte] = new Date(endDate);
     }
 
-    const data = await SolarData.find(query)
-      .sort({ timestamp: -1 })
-      .limit(parseInt(limit));
+    const data = await SolarData.findAll({
+      where,
+      order: [['timestamp', 'DESC']],
+      limit: parseInt(limit)
+    });
 
     res.status(200).json({
       success: true,
       count: data.length,
-      data
+      data: data.map(d => d.toNestedJSON())
     });
   } catch (error) {
     res.status(500).json({
@@ -69,12 +74,41 @@ const getDataHistory = async (req, res) => {
 // @access  Private
 const addSolarData = async (req, res) => {
   try {
-    const solarData = await SolarData.create(req.body);
+    // Convert nested object to flat structure
+    const flatData = {
+      deviceId: req.body.deviceId,
+      timestamp: req.body.timestamp || new Date(),
+      solarPowerCurrent: req.body.solarPower?.current || 0,
+      solarPowerVoltage: req.body.solarPower?.voltage || 0,
+      solarPowerCurrentAmpere: req.body.solarPower?.current_ampere || 0,
+      energyProductionToday: req.body.energyProduction?.today || 0,
+      energyProductionThisMonth: req.body.energyProduction?.thisMonth || 0,
+      energyProductionTotal: req.body.energyProduction?.total || 0,
+      batteryLevel: req.body.battery?.level || 0,
+      batteryVoltage: req.body.battery?.voltage || 0,
+      batteryCharging: req.body.battery?.charging || false,
+      gridStatus: req.body.grid?.status || 'online',
+      gridVoltage: req.body.grid?.voltage || 0,
+      gridFrequency: req.body.grid?.frequency || 0,
+      loadPower: req.body.load?.power || 0,
+      loadToday: req.body.load?.today || 0,
+      inverterStatus: req.body.inverter?.status || 'normal',
+      inverterTemperature: req.body.inverter?.temperature || 0,
+      inverterEfficiency: req.body.inverter?.efficiency || 0,
+      weatherTemperature: req.body.weather?.temperature || 0,
+      weatherHumidity: req.body.weather?.humidity || 0,
+      weatherIrradiance: req.body.weather?.irradiance || 0,
+      weatherCloudCover: req.body.weather?.cloudCover || 0,
+      systemStatus: req.body.system?.status || 'normal',
+      systemAlerts: req.body.system?.alerts || []
+    };
+
+    const solarData = await SolarData.create(flatData);
 
     res.status(201).json({
       success: true,
       message: 'Solar data added successfully',
-      data: solarData
+      data: solarData.toNestedJSON()
     });
   } catch (error) {
     res.status(500).json({
@@ -110,26 +144,22 @@ const getStatistics = async (req, res) => {
         startDate = new Date(now.setHours(0, 0, 0, 0));
     }
 
-    const stats = await SolarData.aggregate([
-      {
-        $match: {
-          deviceId,
-          timestamp: { $gte: startDate }
-        }
+    const stats = await SolarData.findAll({
+      where: {
+        deviceId,
+        timestamp: { [Op.gte]: startDate }
       },
-      {
-        $group: {
-          _id: null,
-          avgPower: { $avg: '$solarPower.current' },
-          maxPower: { $max: '$solarPower.current' },
-          minPower: { $min: '$solarPower.current' },
-          totalEnergy: { $sum: '$energyProduction.today' },
-          avgBatteryLevel: { $avg: '$battery.level' },
-          avgTemperature: { $avg: '$weather.temperature' },
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+      attributes: [
+        [fn('AVG', col('solar_power_current')), 'avgPower'],
+        [fn('MAX', col('solar_power_current')), 'maxPower'],
+        [fn('MIN', col('solar_power_current')), 'minPower'],
+        [fn('SUM', col('energy_production_today')), 'totalEnergy'],
+        [fn('AVG', col('battery_level')), 'avgBatteryLevel'],
+        [fn('AVG', col('weather_temperature')), 'avgTemperature'],
+        [fn('COUNT', col('id')), 'count']
+      ],
+      raw: true
+    });
 
     res.status(200).json({
       success: true,
@@ -152,9 +182,10 @@ const getDashboardData = async (req, res) => {
     const { deviceId } = req.params;
 
     // Get latest data
-    const latestData = await SolarData.findOne({ deviceId })
-      .sort({ timestamp: -1 })
-      .limit(1);
+    const latestData = await SolarData.findOne({
+      where: { deviceId },
+      order: [['timestamp', 'DESC']]
+    });
 
     if (!latestData) {
       return res.status(404).json({
@@ -167,31 +198,32 @@ const getDashboardData = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const hourlyData = await SolarData.aggregate([
+    const hourlyData = await sequelize.query(
+      `SELECT 
+        EXTRACT(HOUR FROM timestamp) as hour,
+        AVG(solar_power_current) as "avgPower",
+        AVG(load_power) as "avgLoad",
+        AVG(battery_level) as "avgBattery"
+      FROM solar_data
+      WHERE "deviceId" = :deviceId AND timestamp >= :today
+      GROUP BY EXTRACT(HOUR FROM timestamp)
+      ORDER BY hour ASC`,
       {
-        $match: {
-          deviceId,
-          timestamp: { $gte: today }
-        }
-      },
-      {
-        $group: {
-          _id: { $hour: '$timestamp' },
-          avgPower: { $avg: '$solarPower.current' },
-          avgLoad: { $avg: '$load.power' },
-          avgBattery: { $avg: '$battery.level' }
-        }
-      },
-      {
-        $sort: { _id: 1 }
+        replacements: { deviceId, today },
+        type: sequelize.QueryTypes.SELECT
       }
-    ]);
+    );
 
     res.status(200).json({
       success: true,
       data: {
-        current: latestData,
-        hourlyStats: hourlyData
+        current: latestData.toNestedJSON(),
+        hourlyStats: hourlyData.map(h => ({
+          _id: parseInt(h.hour),
+          avgPower: parseFloat(h.avgPower || 0),
+          avgLoad: parseFloat(h.avgLoad || 0),
+          avgBattery: parseFloat(h.avgBattery || 0)
+        }))
       }
     });
   } catch (error) {

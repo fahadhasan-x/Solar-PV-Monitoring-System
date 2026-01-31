@@ -1,5 +1,12 @@
 # SCUBE Solar Monitoring API Documentation
 
+## Technology Stack
+- **Node.js** + **Express.js** - Server framework
+- **PostgreSQL** - Relational database
+- **Sequelize** - ORM for PostgreSQL
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
+
 ## Base URL
 ```
 http://localhost:5000/api

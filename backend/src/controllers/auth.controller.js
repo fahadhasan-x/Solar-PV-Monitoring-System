@@ -1,5 +1,6 @@
 const User = require('../models/User.model');
 const { generateToken } = require('../utils/jwtHelper');
+const { Op } = require('sequelize');
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -9,7 +10,11 @@ const register = async (req, res) => {
     const { username, email, password, name } = req.body;
 
     // Check if user already exists
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    const userExists = await User.findOne({ 
+      where: {
+        [Op.or]: [{ email }, { username }]
+      }
+    });
 
     if (userExists) {
       return res.status(400).json({
@@ -27,14 +32,14 @@ const register = async (req, res) => {
     });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           username: user.username,
           email: user.email,
           name: user.name,
@@ -68,8 +73,10 @@ const login = async (req, res) => {
 
     // Find user (include password field)
     const user = await User.findOne({ 
-      $or: [{ username }, { email: username }] 
-    }).select('+password');
+      where: {
+        [Op.or]: [{ username }, { email: username }]
+      }
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -97,14 +104,14 @@ const login = async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.status(200).json({
       success: true,
       message: 'Login successful',
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           username: user.username,
           email: user.email,
           name: user.name,
@@ -126,13 +133,13 @@ const login = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
 
     res.status(200).json({
       success: true,
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           username: user.username,
           email: user.email,
           name: user.name,

@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
-const connectDB = require('./config/database');
+const { connectDB } = require('./config/database');
 
 // Load environment variables
 dotenv.config();
@@ -27,7 +27,8 @@ app.get('/', (req, res) => {
   res.json({
     message: 'SCUBE Solar Monitoring API',
     version: '1.0.0',
-    status: 'active'
+    status: 'active',
+    database: 'PostgreSQL'
   });
 });
 

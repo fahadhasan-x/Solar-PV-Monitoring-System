@@ -46,8 +46,10 @@
 |------------|---------|---------|
 | **Node.js** | v16+ | Server runtime |
 | **Express.js** | ^4.18.2 | Web framework |
-| **MongoDB** | v5+ | Database |
-| **Mongoose** | ^8.0.3 | ODM for MongoDB |
+| **PostgreSQL** | v12+ | Relational database |
+| **Sequelize** | ^6.35.0 | ORM for PostgreSQL |
+| **pg** | ^8.11.0 | PostgreSQL client |
+| **pg-hstore** | ^2.3.4 | JSON serialization |
 | **JWT** | ^9.0.2 | Authentication |
 | **bcryptjs** | ^2.4.3 | Password hashing |
 | **dotenv** | ^16.3.1 | Environment config |
@@ -67,8 +69,9 @@
 | **FL Chart** | ^0.66.0 | Data visualization |
 
 ### Database
-- **MongoDB** - NoSQL database for flexible data storage
-- **Collections**: Users, SolarData
+- **PostgreSQL** - Powerful open-source relational database
+- **Sequelize ORM** - Modern ORM with migration support
+- **Tables**: users, solar_data
 
 ---
 
@@ -155,9 +158,9 @@
 │                                          │              │
 │                                          ↓              │
 │  ┌────────────────────────────────────────────────┐   │
-│  │            MongoDB Database                    │   │
+│  │          PostgreSQL Database                   │   │
 │  │  ┌──────────────┐  ┌──────────────────────┐  │   │
-│  │  │    Users     │  │     SolarData        │  │   │
+│  │  │    users     │  │     solar_data       │  │   │
 │  │  └──────────────┘  └──────────────────────┘  │   │
 │  └────────────────────────────────────────────────┘   │
 └───────────────────────────────────────────────────────┘
@@ -169,10 +172,10 @@
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.js          # MongoDB connection config
+│   │   └── database.js          # PostgreSQL + Sequelize config
 │   ├── models/
-│   │   ├── User.model.js        # User schema & methods
-│   │   └── SolarData.model.js   # Solar data schema
+│   │   ├── User.model.js        # User model (Sequelize)
+│   │   └── SolarData.model.js   # Solar data model (Sequelize)
 │   ├── controllers/
 │   │   ├── auth.controller.js   # Auth logic (login, register)
 │   │   └── solarData.controller.js  # Solar data operations
@@ -235,7 +238,7 @@ lib/
 Before you begin, ensure you have the following installed:
 
 - **Node.js** (v16 or higher) - [Download](https://nodejs.org/)
-- **MongoDB** (v5 or higher) - [Download](https://www.mongodb.com/try/download/community)
+- **PostgreSQL** (v12 or higher) - [Download](https://www.postgresql.org/download/)
 - **Flutter** (v3.0 or higher) - [Install Guide](https://flutter.dev/docs/get-started/install)
 - **Git** - [Download](https://git-scm.com/)
 
@@ -261,8 +264,12 @@ Create a `.env` file in the `backend` directory:
 PORT=5000
 NODE_ENV=development
 
-# Database
-MONGODB_URI=mongodb://localhost:27017/solar_monitoring
+# PostgreSQL Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=solar_monitoring
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
 
 # JWT Secret (change this to a secure random string)
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
@@ -272,16 +279,23 @@ JWT_EXPIRE=7d
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
 ```
 
-#### Start MongoDB
-Make sure MongoDB is running:
+#### Create PostgreSQL Database
+
+Make sure PostgreSQL is running, then create the database:
 
 ```bash
-# Windows
-net start MongoDB
+# Windows (open Command Prompt or PowerShell)
+psql -U postgres
+CREATE DATABASE solar_monitoring;
+\q
 
 # macOS/Linux
-sudo systemctl start mongod
+sudo -u postgres psql
+CREATE DATABASE solar_monitoring;
+\q
 ```
+
+**Alternative:** Use pgAdmin GUI tool to create database
 
 #### Seed Database with Dummy Data
 ```bash
@@ -292,8 +306,10 @@ npm run seed
 ```
 🌱 Starting database seeding...
 
+PostgreSQL Connected successfully
+Database synchronized
 Created 3 users
-Created 48 solar data entries
+Created 49 solar data entries
 
 ✅ Database seeding completed successfully!
 
@@ -935,128 +951,103 @@ final isLoggedIn = await SecureStorage.isLoggedIn();
 
 ## 🗄️ Database Schema
 
-### Users Collection
+### Users Table (PostgreSQL)
 
-```javascript
-{
-  _id: ObjectId,
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    match: /email-regex/
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-    // Automatically hashed before saving
-  },
-  name: String,
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  createdAt: Date,
-  updatedAt: Date
-}
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  name VARCHAR(255),
+  role VARCHAR(10) DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  "isActive" BOOLEAN DEFAULT true,
+  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
+
+**Constraints:**
+- Primary Key: `id`
+- Unique: `username`, `email`
+- Check: `role` IN ('user', 'admin')
+- Default: `role='user'`, `isActive=true`
 
 **Indexes:**
 - `username` (unique)
 - `email` (unique)
 
-**Methods:**
-- `comparePassword(candidatePassword)` - Compare hashed passwords
+**Password Security:**
+- Automatically hashed using bcrypt (salt rounds: 10)
+- Never returned in API responses
 
 ---
 
-### SolarData Collection
+### SolarData Table (PostgreSQL)
 
-```javascript
-{
-  _id: ObjectId,
-  deviceId: {
-    type: String,
-    required: true,
-    index: true
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true
-  },
-  solarPower: {
-    current: Number,      // kW
-    voltage: Number,      // V
-    current_ampere: Number // A
-  },
-  energyProduction: {
-    today: Number,        // kWh
-    thisMonth: Number,    // kWh
-    total: Number         // kWh
-  },
-  battery: {
-    level: Number,        // % (0-100)
-    voltage: Number,      // V
-    charging: Boolean
-  },
-  grid: {
-    status: {
-      type: String,
-      enum: ['online', 'offline']
-    },
-    voltage: Number,      // V
-    frequency: Number     // Hz
-  },
-  load: {
-    power: Number,        // kW
-    today: Number         // kWh
-  },
-  inverter: {
-    status: {
-      type: String,
-      enum: ['normal', 'fault', 'standby']
-    },
-    temperature: Number,  // °C
-    efficiency: Number    // % (0-100)
-  },
-  weather: {
-    temperature: Number,  // °C
-    humidity: Number,     // %
-    irradiance: Number,   // W/m²
-    cloudCover: Number    // %
-  },
-  system: {
-    status: {
-      type: String,
-      enum: ['normal', 'warning', 'error']
-    },
-    alerts: [{
-      type: String,
-      message: String,
-      timestamp: Date
-    }]
-  },
-  createdAt: Date,
-  updatedAt: Date
-}
+```sql
+CREATE TABLE solar_data (
+  id SERIAL PRIMARY KEY,
+  "deviceId" VARCHAR(100) NOT NULL,
+  timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  -- Solar Power Metrics
+  solar_power_current DECIMAL(10,2) DEFAULT 0,
+  solar_power_voltage DECIMAL(10,2) DEFAULT 0,
+  solar_power_current_ampere DECIMAL(10,2) DEFAULT 0,
+  
+  -- Energy Production
+  energy_production_today DECIMAL(10,2) DEFAULT 0,
+  energy_production_this_month DECIMAL(10,2) DEFAULT 0,
+  energy_production_total DECIMAL(10,2) DEFAULT 0,
+  
+  -- Battery Status
+  battery_level DECIMAL(5,2) DEFAULT 0 CHECK (battery_level >= 0 AND battery_level <= 100),
+  battery_voltage DECIMAL(10,2) DEFAULT 0,
+  battery_charging BOOLEAN DEFAULT false,
+  
+  -- Grid Status
+  grid_status VARCHAR(10) DEFAULT 'online' CHECK (grid_status IN ('online', 'offline')),
+  grid_voltage DECIMAL(10,2) DEFAULT 0,
+  grid_frequency DECIMAL(5,2) DEFAULT 0,
+  
+  -- Load/Consumption
+  load_power DECIMAL(10,2) DEFAULT 0,
+  load_today DECIMAL(10,2) DEFAULT 0,
+  
+  -- Inverter Status
+  inverter_status VARCHAR(10) DEFAULT 'normal' CHECK (inverter_status IN ('normal', 'fault', 'standby')),
+  inverter_temperature DECIMAL(5,2) DEFAULT 0,
+  inverter_efficiency DECIMAL(5,2) DEFAULT 0 CHECK (inverter_efficiency >= 0 AND inverter_efficiency <= 100),
+  
+  -- Weather Data
+  weather_temperature DECIMAL(5,2) DEFAULT 0,
+  weather_humidity DECIMAL(5,2) DEFAULT 0,
+  weather_irradiance DECIMAL(10,2) DEFAULT 0,
+  weather_cloud_cover DECIMAL(5,2) DEFAULT 0,
+  
+  -- System Status
+  system_status VARCHAR(10) DEFAULT 'normal' CHECK (system_status IN ('normal', 'warning', 'error')),
+  system_alerts JSONB DEFAULT '[]',
+  
+  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 **Indexes:**
-- `deviceId` + `timestamp` (compound, descending)
+- Compound: (`deviceId`, `timestamp` DESC) - for efficient queries
+- Single: `deviceId` - for device filtering
+- Single: `timestamp` - for time-based queries
+
+**Data Types:**
+- `DECIMAL(10,2)` - For precise numeric values (e.g., power, voltage)
+- `JSONB` - For flexible alert storage with indexing support
+- `TIMESTAMP` - For accurate time tracking
+- `BOOLEAN` - For binary states (charging, online/offline)
+
+**API Response Format:**
+The model includes a `toNestedJSON()` method that converts the flat structure to nested objects for backward compatibility with the frontend.
 
 ---
 
@@ -1159,7 +1150,8 @@ curl -X GET http://localhost:5000/api/solar/dashboard/SOLAR_001 \
 
 #### Backend
 - [ ] Server starts without errors
-- [ ] MongoDB connection successful
+- [ ] PostgreSQL connection successful
+- [ ] Database tables created automatically
 - [ ] Can register new user
 - [ ] Can login with credentials
 - [ ] JWT token generated
@@ -1189,14 +1181,36 @@ curl -X GET http://localhost:5000/api/solar/dashboard/SOLAR_001 \
 
 ### Backend Issues
 
-#### MongoDB Connection Error
+#### PostgreSQL Connection Error
 ```
-Error: MongoDB not running
+Error: Unable to connect to database
 ```
 **Solution:**
-- Windows: `net start MongoDB`
-- macOS/Linux: `sudo systemctl start mongod`
-- Check if port 27017 is available
+- Windows: Check if PostgreSQL service is running
+  ```bash
+  # Check service status
+  sc query postgresql-x64-14  # (version may vary)
+  
+  # Start service
+  net start postgresql-x64-14
+  ```
+- macOS/Linux: `sudo systemctl start postgresql`
+- Verify credentials in `.env` file
+- Check if port 5432 is available
+- Test connection: `psql -U postgres -d solar_monitoring`
+
+---
+
+#### Database Does Not Exist
+```
+Error: database "solar_monitoring" does not exist
+```
+**Solution:**
+```bash
+psql -U postgres
+CREATE DATABASE solar_monitoring;
+\q
+```
 
 ---
 
@@ -1362,10 +1376,11 @@ Access to XMLHttpRequest blocked by CORS policy
 - [ ] Docker containerization
 - [ ] CI/CD pipeline
 - [ ] Cloud deployment (AWS/Azure/GCP)
-- [ ] MongoDB Atlas integration
+- [ ] PostgreSQL cloud hosting (AWS RDS, Google Cloud SQL, Heroku Postgres)
 - [ ] CDN for assets
 - [ ] SSL/HTTPS
 - [ ] Load balancing
+- [ ] Database backups & replication
 
 ---
 
@@ -1388,9 +1403,11 @@ Access to XMLHttpRequest blocked by CORS policy
 - Users
 - SolarData
 
+**Database Type:** PostgreSQL with Sequelize ORM
+
 **Test Data:**
 - 3 users
-- 48 hours of solar data (48 records)
+- 49 data points (24 hours of solar data)
 
 ---
 
@@ -1424,7 +1441,7 @@ For issues, questions, or contributions:
 
 **Technologies Used:**
 - Node.js & Express.js
-- MongoDB & Mongoose
+- PostgreSQL & Sequelize ORM
 - Flutter & Dart
 - JWT for authentication
 - Provider for state management
@@ -1432,7 +1449,8 @@ For issues, questions, or contributions:
 **Special Thanks:**
 - Flutter community
 - Node.js community
-- MongoDB team
+- PostgreSQL community
+- Sequelize team
 
 ---
 

@@ -1,18 +1,7 @@
-const User = require('../src/models/User.model');
-const SolarData = require('../src/models/SolarData.model');
-const mongoose = require('mongoose');
+const User = require('./src/models/User.model');
+const SolarData = require('./src/models/SolarData.model');
+const { sequelize, connectDB } = require('./src/config/database');
 require('dotenv').config();
-
-// Connect to MongoDB
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB Connected...');
-  } catch (err) {
-    console.error('Error:', err.message);
-    process.exit(1);
-  }
-};
 
 // Generate random number within range
 const randomBetween = (min, max) => Math.random() * (max - min) + min;
@@ -46,8 +35,8 @@ const createUsers = async () => {
     },
   ];
 
-  await User.deleteMany({});
-  const createdUsers = await User.create(users);
+  await User.destroy({ where: {}, truncate: true });
+  const createdUsers = await User.bulkCreate(users);
   console.log(`Created ${createdUsers.length} users`);
   return createdUsers;
 };
@@ -74,58 +63,42 @@ const createSolarData = async () => {
     const solarData = {
       deviceId,
       timestamp,
-      solarPower: {
-        current: randomBetween(0, 10) * solarMultiplier,
-        voltage: randomBetween(230, 250),
-        current_ampere: randomBetween(0, 50) * solarMultiplier,
-      },
-      energyProduction: {
-        today: randomBetween(10, 30),
-        thisMonth: randomBetween(400, 600),
-        total: randomBetween(5000, 8000),
-      },
-      battery: {
-        level: randomBetween(60, 95),
-        voltage: randomBetween(46, 52),
-        charging: solarMultiplier > 0.3,
-      },
-      grid: {
-        status: Math.random() > 0.1 ? 'online' : 'offline',
-        voltage: randomBetween(220, 240),
-        frequency: randomBetween(49.5, 50.5),
-      },
-      load: {
-        power: randomBetween(2, 8),
-        today: randomBetween(10, 25),
-      },
-      inverter: {
-        status: Math.random() > 0.05 ? 'normal' : 'warning',
-        temperature: randomBetween(35, 55),
-        efficiency: randomBetween(90, 98),
-      },
-      weather: {
-        temperature: randomBetween(20, 35),
-        humidity: randomBetween(40, 80),
-        irradiance: randomBetween(0, 1000) * solarMultiplier,
-        cloudCover: randomBetween(0, 80) * (1 - solarMultiplier),
-      },
-      system: {
-        status: Math.random() > 0.05 ? 'normal' : 'warning',
-        alerts: Math.random() > 0.9 ? [
-          {
-            type: 'warning',
-            message: 'High temperature detected',
-            timestamp: new Date(),
-          }
-        ] : [],
-      },
+      solarPowerCurrent: randomBetween(0, 10) * solarMultiplier,
+      solarPowerVoltage: randomBetween(230, 250),
+      solarPowerCurrentAmpere: randomBetween(0, 50) * solarMultiplier,
+      energyProductionToday: randomBetween(10, 30),
+      energyProductionThisMonth: randomBetween(400, 600),
+      energyProductionTotal: randomBetween(5000, 8000),
+      batteryLevel: randomBetween(60, 95),
+      batteryVoltage: randomBetween(46, 52),
+      batteryCharging: solarMultiplier > 0.3,
+      gridStatus: Math.random() > 0.1 ? 'online' : 'offline',
+      gridVoltage: randomBetween(220, 240),
+      gridFrequency: randomBetween(49.5, 50.5),
+      loadPower: randomBetween(2, 8),
+      loadToday: randomBetween(10, 25),
+      inverterStatus: Math.random() > 0.05 ? 'normal' : 'standby',
+      inverterTemperature: randomBetween(35, 55),
+      inverterEfficiency: randomBetween(90, 98),
+      weatherTemperature: randomBetween(20, 35),
+      weatherHumidity: randomBetween(40, 80),
+      weatherIrradiance: randomBetween(0, 1000) * solarMultiplier,
+      weatherCloudCover: randomBetween(0, 80) * (1 - solarMultiplier),
+      systemStatus: Math.random() > 0.05 ? 'normal' : 'warning',
+      systemAlerts: Math.random() > 0.9 ? [
+        {
+          type: 'warning',
+          message: 'High temperature detected',
+          timestamp: new Date(),
+        }
+      ] : [],
     };
 
     solarDataArray.push(solarData);
   }
 
-  await SolarData.deleteMany({});
-  const createdData = await SolarData.insertMany(solarDataArray);
+  await SolarData.destroy({ where: {}, truncate: true });
+  const createdData = await SolarData.bulkCreate(solarDataArray);
   console.log(`Created ${createdData.length} solar data entries`);
   return createdData;
 };
@@ -147,6 +120,7 @@ const seedDatabase = async () => {
     console.log('  Username: demo, Password: demo123');
     console.log('\nDevice ID: SOLAR_001\n');
     
+    await sequelize.close();
     process.exit(0);
   } catch (error) {
     console.error('Error seeding database:', error);
